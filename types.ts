@@ -19,6 +19,26 @@ export interface CodeSuggestion {
   description: string;
 }
 
+export interface SocialPreview {
+  title: string;
+  description: string;
+  image: string; // URL giả lập hoặc mô tả
+  siteName: string;
+}
+
+export interface SecurityAudit {
+  score: number;
+  https: boolean;
+  issues: string[];
+}
+
+export interface HiHiRank {
+  tier: 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
+  name: string; // Ví dụ: "Thánh Tốc Độ"
+  emoji: string;
+  quote: string; // Câu nhận xét hài hước
+}
+
 export interface WebAuditResult {
   performanceScore: number;
   accessibilityScore: number;
@@ -38,10 +58,15 @@ export interface WebAuditResult {
   totalPageSize: string; 
   
   // New: Potential / Optimized Metrics (AI prediction)
-  potentialLoadTime: string; // Thời gian tải sau khi tối ưu
-  potentialPageSize: string; // Dung lượng sau khi tối ưu
-  savingsPercentage: number; // Phần trăm tiết kiệm được
+  potentialLoadTime: string; 
+  potentialPageSize: string; 
+  savingsPercentage: number; 
   
+  // New Features
+  hihiRank: HiHiRank;
+  socialPreview: SocialPreview;
+  security: SecurityAudit;
+
   resourceBreakdown: ResourceItem[];
   opportunities: Opportunity[];
   codeSuggestions: CodeSuggestion[];

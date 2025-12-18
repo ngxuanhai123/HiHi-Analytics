@@ -10,19 +10,48 @@ const auditSchema: Schema = {
     seoScore: { type: Type.INTEGER, description: "Điểm SEO 0-100" },
     
     estimatedLoadTime: { type: Type.STRING, description: "Thời gian tải hiện tại (ví dụ: '2.5s')" },
-    fcp: { type: Type.STRING, description: "First Contentful Paint" },
-    lcp: { type: Type.STRING, description: "Largest Contentful Paint" },
-    cls: { type: Type.STRING, description: "Cumulative Layout Shift" },
-    carbonFootprint: { type: Type.STRING, description: "CO2 per view" },
+    fcp: { type: Type.STRING },
+    lcp: { type: Type.STRING },
+    cls: { type: Type.STRING },
+    carbonFootprint: { type: Type.STRING },
     
-    transferSize: { type: Type.STRING, description: "Dung lượng tải qua mạng (Compressed)" },
-    resourcesSize: { type: Type.STRING, description: "Dung lượng thực (Uncompressed)" },
-    totalPageSize: { type: Type.STRING, description: "Tổng dung lượng" },
+    transferSize: { type: Type.STRING },
+    resourcesSize: { type: Type.STRING },
+    totalPageSize: { type: Type.STRING },
     
-    // New Fields
-    potentialLoadTime: { type: Type.STRING, description: "Thời gian tải dự kiến sau khi tối ưu (ví dụ: '0.8s')" },
-    potentialPageSize: { type: Type.STRING, description: "Dung lượng dự kiến sau khi tối ưu (ví dụ: '800 KB')" },
-    savingsPercentage: { type: Type.INTEGER, description: "Phần trăm cải thiện hiệu suất ước tính (ví dụ: 40)" },
+    potentialLoadTime: { type: Type.STRING },
+    potentialPageSize: { type: Type.STRING },
+    savingsPercentage: { type: Type.INTEGER },
+
+    // New: HiHi Rank
+    hihiRank: {
+      type: Type.OBJECT,
+      properties: {
+        tier: { type: Type.STRING, enum: ['S', 'A', 'B', 'C', 'D', 'F'] },
+        name: { type: Type.STRING, description: "Tên danh hiệu vui nhộn (ví dụ: 'Thánh Tốc Độ', 'Rùa Hồ Gươm')" },
+        emoji: { type: Type.STRING, description: "Emoji đại diện" },
+        quote: { type: Type.STRING, description: "Câu châm biếm hoặc khen ngợi ngắn gọn" }
+      }
+    },
+    // New: Social Preview
+    socialPreview: {
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING, description: "Tiêu đề hiển thị khi share Facebook (OG Title)" },
+        description: { type: Type.STRING, description: "Mô tả hiển thị khi share (OG Description)" },
+        image: { type: Type.STRING, description: "Mô tả ngắn về hình ảnh đại diện của web (vì AI không lấy được link ảnh thật)" },
+        siteName: { type: Type.STRING }
+      }
+    },
+    // New: Security
+    security: {
+      type: Type.OBJECT,
+      properties: {
+        score: { type: Type.INTEGER },
+        https: { type: Type.BOOLEAN },
+        issues: { type: Type.ARRAY, items: { type: Type.STRING } }
+      }
+    },
 
     resourceBreakdown: {
       type: Type.ARRAY,
@@ -73,21 +102,16 @@ export const analyzeWebsite = async (url: string, device: 'mobile' | 'desktop', 
 
   try {
     const prompt = `
-      Bạn là HiHi Intelligence Engine - bộ não phân tích web hàng đầu thế giới.
-      Nhiệm vụ: Phân tích trang web ${url}
-      Thiết bị giả lập: ${device.toUpperCase()}
-      Vị trí Server kiểm tra: ${location}
+      Bạn là HiHi Intelligence Engine.
+      Phân tích trang web ${url}. Thiết bị: ${device}. Location: ${location}.
       
-      Hãy đóng vai một chuyên gia khó tính của HiHi Team. Đưa ra các chỉ số dựa trên tech stack của trang web đó.
+      Yêu cầu mở rộng:
+      1. Tạo "hihiRank": Đánh giá độ vui/tốt của web và gán danh hiệu hài hước (Ví dụ: Web nhanh thì gọi là "Tên lửa", chậm thì "Rùa bò"). Tier S là tốt nhất, F là tệ nhất.
+      2. Giả lập "socialPreview": Dự đoán nội dung thẻ Meta OG (Open Graph) khi share link này lên Facebook.
+      3. Kiểm tra "security": Dự đoán các lỗi bảo mật cơ bản (HTTPS, Headers).
+      4. Các chỉ số Core Web Vitals và Data size vẫn phải chính xác.
       
-      Yêu cầu phân tích:
-      1. Core Web Vitals phải thực tế với thiết bị và vị trí địa lý đã chọn.
-      2. Tính toán cả trạng thái HIỆN TẠI và trạng thái TIỀM NĂNG (Sau khi tối ưu hết mức).
-      3. Đưa ra các 'codeSuggestions' cực kỳ chi tiết.
-      4. Phân biệt rõ transferSize và resourcesSize.
-      
-      Tuyệt đối KHÔNG nhắc đến tên các công cụ khác (như Lighthouse, PageSpeed...). Đây là báo cáo độc quyền của HiHi.
-      Trả về JSON theo schema. Ngôn ngữ: Tiếng Việt vui vẻ, thân thiện.
+      Trả về JSON. Ngôn ngữ: Tiếng Việt, phong cách vui vẻ, "bựa" một chút nhưng vẫn chuyên nghiệp ở số liệu.
     `;
 
     const response = await ai.models.generateContent({

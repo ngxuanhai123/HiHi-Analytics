@@ -21,31 +21,69 @@ const MetricCard = ({ label, value, subtext, icon, color }: any) => (
 );
 
 const ResultDashboard: React.FC<ResultDashboardProps> = ({ data }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'code'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'social_security' | 'details' | 'code'>('overview');
 
   const tabs = [
     { id: 'overview', label: 'Tổng quan' },
-    { id: 'details', label: 'Chi tiết & Dự đoán' },
-    { id: 'code', label: 'HiHi Code Fix' },
+    { id: 'social_security', label: 'Social & Bảo mật' },
+    { id: 'details', label: 'Chi tiết' },
+    { id: 'code', label: 'Code Fix' },
   ];
 
   const handleExport = () => {
     alert("Tính năng đang được HiHi phát triển! Sẽ sớm ra mắt bản PDF xịn xò.");
   };
 
+  // Rank Colors
+  const getRankColor = (tier: string) => {
+    switch(tier) {
+      case 'S': return 'from-yellow-400 via-orange-500 to-red-500';
+      case 'A': return 'from-emerald-400 to-cyan-500';
+      case 'B': return 'from-blue-400 to-indigo-500';
+      case 'C': return 'from-yellow-200 to-yellow-500';
+      default: return 'from-gray-400 to-slate-500';
+    }
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto animate-fade-in pb-10">
       
+      {/* HiHi Rank Banner - Always Visible */}
+      <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 shadow-2xl">
+        <div className={`absolute inset-0 bg-gradient-to-r ${getRankColor(data.hihiRank.tier)} opacity-10`}></div>
+        <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+             <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br ${getRankColor(data.hihiRank.tier)} flex items-center justify-center shadow-lg transform rotate-3`}>
+                <span className="text-4xl md:text-5xl font-black text-white drop-shadow-md">{data.hihiRank.tier}</span>
+             </div>
+             <div>
+               <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">{data.hihiRank.name} {data.hihiRank.emoji}</h2>
+               <p className="text-slate-400 text-sm md:text-base italic">"{data.hihiRank.quote}"</p>
+             </div>
+          </div>
+          <div className="flex gap-3">
+             <div className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-600 backdrop-blur text-center">
+               <div className="text-xs text-slate-400 uppercase">Load Time</div>
+               <div className="text-lg font-bold text-emerald-400">{data.estimatedLoadTime}</div>
+             </div>
+             <div className="px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-600 backdrop-blur text-center">
+               <div className="text-xs text-slate-400 uppercase">Size</div>
+               <div className="text-lg font-bold text-blue-400">{data.transferSize}</div>
+             </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <div className="bg-slate-800/50 p-1 rounded-xl inline-flex border border-slate-700/50 backdrop-blur">
+        <div className="bg-slate-800/50 p-1 rounded-xl inline-flex border border-slate-700/50 backdrop-blur overflow-x-auto max-w-full">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 md:px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-rose-600 to-orange-600 text-white shadow-lg shadow-orange-500/20'
+                  ? 'bg-slate-700 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
               }`}
             >
@@ -145,6 +183,70 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ data }) => {
                 {data.summary}
               </p>
             </div>
+          </div>
+        )}
+
+        {/* SOCIAL & SECURITY TAB (New) */}
+        {activeTab === 'social_security' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
+            
+            {/* Social Preview */}
+            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+              <h3 className="text-sm font-bold text-slate-300 mb-5 uppercase flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Giả lập hiển thị Facebook
+              </h3>
+              
+              <div className="bg-[#18191a] rounded-lg border border-[#3a3b3c] overflow-hidden max-w-sm mx-auto">
+                 <div className="h-48 bg-slate-700 relative group flex items-center justify-center text-slate-500">
+                    {/* Placeholder image logic */}
+                    <span className="text-xs px-4 text-center">{data.socialPreview.image} (Ảnh minh họa)</span>
+                 </div>
+                 <div className="p-3 bg-[#242526]">
+                    <div className="text-[#b0b3b8] text-[12px] uppercase mb-1">{data.socialPreview.siteName || "WEBSITE.COM"}</div>
+                    <div className="text-[#e4e6eb] font-semibold text-[16px] leading-tight mb-1 line-clamp-2">{data.socialPreview.title}</div>
+                    <div className="text-[#b0b3b8] text-[14px] line-clamp-1">{data.socialPreview.description}</div>
+                 </div>
+              </div>
+              <p className="mt-4 text-xs text-slate-500 text-center italic">Đây là cách web của bạn có thể trông thấy khi được share.</p>
+            </div>
+
+            {/* Security Check */}
+            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+              <h3 className="text-sm font-bold text-slate-300 mb-5 uppercase flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                Quét Bảo Mật Nhanh
+              </h3>
+              
+              <div className="space-y-4">
+                 <div className="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                    <span className="text-slate-300 text-sm">HTTPS/SSL</span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${data.security.https ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {data.security.https ? 'AN TOÀN' : 'KHÔNG AN TOÀN'}
+                    </span>
+                 </div>
+                 
+                 <div>
+                    <span className="text-xs text-slate-400 mb-2 block uppercase font-semibold">Các vấn đề phát hiện:</span>
+                    <ul className="space-y-2">
+                      {data.security.issues && data.security.issues.length > 0 ? (
+                        data.security.issues.map((issue, idx) => (
+                           <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                              <svg className="w-4 h-4 text-yellow-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                              {issue}
+                           </li>
+                        ))
+                      ) : (
+                        <li className="flex items-center gap-2 text-sm text-green-400 italic">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          Không phát hiện lỗi nghiêm trọng nào.
+                        </li>
+                      )}
+                    </ul>
+                 </div>
+              </div>
+            </div>
+
           </div>
         )}
 
